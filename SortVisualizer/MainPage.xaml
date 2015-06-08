@@ -1,0 +1,149 @@
+﻿<Page x:Name="page"
+    x:Class="SortVisualizer.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:SortVisualizer"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition />
+            <ColumnDefinition  Width="300" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" Grid.ColumnSpan="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+                <ColumnDefinition />
+                <ColumnDefinition />
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+        </Grid>
+
+        <GridView x:Name="origView"  Grid.ColumnSpan="2" ItemTemplate="{StaticResource ItemVisualizer}"
+                  ItemsSource="{Binding origData, ElementName=page}"  Header="Original Data" Padding="0" MinHeight="2" 
+                  ItemContainerStyle="{StaticResource ItemVisualizerStyle}" ScrollViewer.VerticalScrollMode="Enabled">
+            <GridView.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapGrid Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+            </GridView.ItemsPanel>
+        </GridView>
+
+        <GridView x:Name="sortedView" Grid.Row="1" Grid.ColumnSpan="2" BorderThickness="2"  ItemTemplate="{StaticResource ItemVisualizer}"
+                  ItemsSource="{Binding sortedData, ElementName=page}" Header="Sorted Data" Padding="0" 
+                  ItemContainerStyle="{StaticResource ItemVisualizerStyle}" ScrollViewer.VerticalScrollMode="Enabled">
+            <GridView.ItemContainerTransitions>
+                <TransitionCollection>
+                    <RepositionThemeTransition />
+                </TransitionCollection>
+            </GridView.ItemContainerTransitions>
+            <GridView.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapGrid Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+            </GridView.ItemsPanel>
+        </GridView>
+
+        <Grid Grid.Row="0" Grid.Column="2" Grid.ColumnSpan="2" Grid.RowSpan="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition />
+                <ColumnDefinition/>
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <TextBlock VerticalAlignment="Center" Grid.ColumnSpan="6" FontSize="20" TextAlignment="Center">
+                Random Generation Settings
+            </TextBlock>
+            <TextBox Text="{Binding Value, ElementName=nItems, Mode=TwoWay}" Grid.Row="1"  KeyDown="TextBox_KeyDown" VerticalAlignment="Center" Grid.ColumnSpan="2" />
+            <Slider x:Name="nItems" Maximum="1000" Grid.Row="1" Grid.Column="2" Header="Number of Items" ValueChanged="nItems_ValueChanged" 
+                    Value="{Binding itemCount, ElementName=page, Mode=TwoWay}" Minimum="2" TickPlacement="Outside" TickFrequency="20"  Grid.RowSpan="1" Grid.ColumnSpan="4"/>
+
+            <Button x:Name="resetRndm" Grid.Row="4" Grid.ColumnSpan="6" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="resetRndm_Click" Content="Recopy data" />
+            <CheckBox x:Name="rndmHeights" Grid.Row="2" Grid.ColumnSpan="6" IsChecked="{Binding isRndmHeight, ElementName=page, Mode=TwoWay}" 
+                      Checked="rndmHeights_Checked"
+                      Unchecked="rndmHeights_Unchecked">
+                Random Heights?
+            </CheckBox>
+
+
+            <TextBox Text="{Binding fixedHeightVal, ElementName=page, Mode=TwoWay}" Grid.Row="3" 
+                     KeyDown="TextBox_KeyDown" VerticalAlignment="Center"
+                     IsEnabled="{Binding IsChecked, ElementName=rndmHeights, Converter={StaticResource BoolInv}}" Grid.ColumnSpan="2"/>
+            <Slider x:Name="fixedHeight" Maximum="100" Grid.Row="3" Grid.Column="2" Header="Height of Items" ValueChanged="fixedHeight_ValueChanged" 
+                    Value="{Binding fixedHeightVal, ElementName=page, Mode=TwoWay}" Minimum="2" TickPlacement="Outside" TickFrequency="10"
+                    IsEnabled="{Binding IsChecked, ElementName=rndmHeights, Converter={StaticResource BoolInv}}" Grid.ColumnSpan="4" />
+      
+            <!-- <Button x:Name="PicButton" Content="Load Image" Grid.Row="4" Grid.ColumnSpan="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"  />
+            <Button x:Name="XmlButton" Content="Load .sample" Grid.Row="4" Grid.Column="3" Grid.ColumnSpan="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"  /> -->
+            <TextBlock VerticalAlignment="Center" Grid.Row="5" Grid.ColumnSpan="6" FontSize="20" TextAlignment="Center">
+                Sort Settings
+            </TextBlock>
+            <ComboBox x:Name="SortMethod" Grid.Column="0" Grid.Row="6" SelectedIndex="0" Header="Sorting method" Grid.ColumnSpan="3" >
+                <ComboBoxItem Content="Bubble"/>
+                <ComboBoxItem Content="Heap"/>
+                <ComboBoxItem Content="Quick"/>
+                <ComboBoxItem Content="Insert"/>
+            </ComboBox>
+            <ComboBox x:Name="SortBy" Grid.Row="6" Grid.Column="3" SelectedIndex="0" Header="Sort by" Grid.ColumnSpan="3" SelectionChanged="SortBy_SelectionChanged">
+                <ComboBoxItem Content="Hue First"/>
+                <ComboBoxItem Content="Saturation First"/>
+                <ComboBoxItem Content="Size"/>
+            </ComboBox>
+            <CheckBox x:Name="invSrt" Content="Reverse the sort?" IsChecked="{Binding invertSort, ElementName=page, Mode=TwoWay}" Grid.ColumnSpan="3" Grid.Row="7" />
+            <Slider x:Name="speedSlider" Maximum="199" Header="Speed" 
+            	Value="{Binding speedMod, ElementName=page, Mode=TwoWay}" Minimum="-100" TickPlacement="Outside" TickFrequency="20" Grid.Column="3" Grid.ColumnSpan="3"  Grid.Row="7" />
+            <ComboBox x:Name="ViewBy" Grid.Row="8"  SelectedIndex="4" Header="View by" Grid.ColumnSpan="6" SelectionChanged="ViewBy_SelectionChanged">
+                <ComboBoxItem Content="Hue"/>
+                <ComboBoxItem Content="Saturation"/>
+                <ComboBoxItem Content="Value"/>
+                <ComboBoxItem Content="Size"/>
+                <ComboBoxItem Content="Color and Size"/>
+            </ComboBox>
+            <Button x:Name="DoSort" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="Button_Click" Grid.ColumnSpan="6" Content="Go!"  Grid.Row="9" />
+            <TextBlock Text="Swap Count" Grid.Column="0" FontSize="24" TextAlignment="Center" Grid.ColumnSpan="3"  Grid.Row="10" Grid.RowSpan="1" VerticalAlignment="Center"/>
+            <TextBlock Text="Comp Count" Grid.Column="3" FontSize="24" TextAlignment="Center" Grid.ColumnSpan="3"  Grid.Row="10" Grid.RowSpan="1" VerticalAlignment="Center"/>
+            <TextBlock Text="{Binding swapCounter, ElementName=page, Converter={StaticResource int2StrC}}" Grid.Row="11"  Grid.ColumnSpan="3"  FontSize="48" TextAlignment="Center"/>
+            <TextBlock Text="{Binding compCounter, ElementName=page, Converter={StaticResource int2StrC}}" Grid.Row="11"  Grid.Column="3" Grid.ColumnSpan="3"  FontSize="48" TextAlignment="Center"/>
+            <ProgressRing x:Name="isDoingSomething"  Grid.ColumnSpan="6" Grid.Row="12" IsActive="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+        </Grid>
+
+    </Grid>
+    
+    <Page.BottomAppBar>
+        <CommandBar>
+            <AppBarButton x:Name="moreRndm" Icon="Refresh" Click="moreRndm_Click" Label="Rerandomize" />
+            <AppBarButton x:Name="PicButton" Icon="OpenFile" Label="From Image" Click="PicButton_Click" />
+            <AppBarButton x:Name="XmlButton" Icon="Import" Label="Import .sample" Click="XmlButton_Click" />
+            <AppBarButton x:Name="ToXmlButton" Icon="Save" Label="Save data" Click="ToXmlButton_Click" />
+            <AppBarButton x:Name="GoToSHist" Icon="ThreeBars" Label="Sort history" Click="GoToSHist_Click" />
+        </CommandBar>
+    </Page.BottomAppBar>
+</Page>

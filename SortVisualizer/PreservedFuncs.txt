@@ -1,0 +1,216 @@
+﻿Public Class XElementConv
+    Implements IValueConverter
+
+    Public Function Convert(value As Object, targetType As Type, parameter As Object, language As String) As Object Implements IValueConverter.Convert
+        Dim xel As XElement = CType(value, XElement)
+        Return xel.Attribute(parameter).Value
+    End Function
+
+    Public Function ConvertBack(value As Object, targetType As Type, parameter As Object, language As String) As Object Implements IValueConverter.ConvertBack
+        Return value
+    End Function
+End Class
+
+
+    ''' <summary>
+    ''' Swaps two items in sorted_data 
+    ''' </summary>
+    ''' <param name="i">The index of the first item to switch</param>
+    ''' <param name="j">The index of the second item to switch</param>
+    ''' <remarks></remarks>
+    Private Sub swap(i As Integer, j As Integer)
+        If i = j Then
+            Return
+        End If
+        Me.swapCounter += 1
+
+        Dim tmp = Me.sorted_data(i)
+        Me.sorted_data(i) = Me.sorted_data(j)
+        Me.sorted_data(j) = tmp
+
+    End Sub
+
+    ''' <summary>
+    ''' Implementation of Bubble Sort
+    ''' </summary>
+    ''' <remarks></remarks>
+    Private Async Sub BubbleSort()
+        Dim n = Me.sorted_data.Count
+        Dim swapped = False
+        Do
+            swapped = False
+            For i As Integer = 1 To n - 1
+                If invsort Then
+                    If comparer.Compare(Me.sorted_data(i - 1), Me.sorted_data(i)) < 0 Then
+                        swap(i, i - 1)
+                        swapped = True
+                        Await Task.Delay(200 - speedMod)
+                    End If
+                Else
+                    If comparer.Compare(Me.sorted_data(i - 1), Me.sorted_data(i)) > 0 Then
+                        swap(i, i - 1)
+                        swapped = True
+                        Await Task.Delay(200 - speedMod)
+                    End If
+                End If
+
+            Next
+            n -= 1
+        Loop Until Not swapped
+        SortFinish()
+    End Sub
+
+    ''' <summary>
+    ''' Implementation of Insert Sort
+    ''' </summary>
+    ''' <remarks></remarks>
+    Private Async Sub InsertSort()
+        For i = 1 To sorted_data.Count - 1
+            For j = i To 1 Step -1
+                If invsort Then
+                    If comparer.Compare(sorted_data(j - 1), sorted_data(j)) < 0 Then
+                        swap(j, j - 1)
+                        Await Task.Delay(200 - speedMod)
+                    End If
+                Else
+                    If comparer.Compare(sorted_data(j - 1), sorted_data(j)) > 0 Then
+                        swap(j, j - 1)
+                        Await Task.Delay(200 - speedMod)
+                    End If
+                End If
+
+            Next
+        Next
+        SortFinish()
+    End Sub
+
+    ' http://www.codecodex.com/wiki/Heapsort
+    ''' <summary>
+    ''' Implementation of Heap Sort
+    ''' </summary>
+    ''' <remarks></remarks>
+    Private Async Sub HeapSort()
+        Dim endidx = sorted_data.Count - 1
+        Await heapify(sorted_data.Count)
+
+        While endidx > 0
+            swap(endidx, 0)
+            Await Task.Delay(200 - SpeedMod)
+            Await siftDown(0, endidx)
+            endidx -= 1
+        End While
+        SortFinish()
+    End Sub
+
+    ''' <summary>
+    ''' Heapifies sorted_data to prepare it for heapsort
+    ''' </summary>
+    ''' <param name="count">The end index of the heaping</param>
+    ''' <returns></returns>
+    ''' <remarks></remarks>
+    Private Async Function heapify(count As Integer) As Task
+        Dim startidx = count \ 2 - 1
+        While startidx >= 0
+            Await siftDown(startidx, count)
+            startidx -= 1
+        End While
+    End Function
+
+    ''' <summary>
+    ''' Pushes numbers down to propery form the heap
+    ''' </summary>
+    ''' <param name="startidx">the starting index of where it should push down items</param>
+    ''' <param name="count">the ending index of the object</param>
+    ''' <returns></returns>
+    ''' <remarks></remarks>
+    Private Async Function siftDown(startidx As Integer, count As Integer) As Task
+        Dim root = startidx
+        While root * 2 + 1 < count
+            Dim childidx = root * 2 + 1
+            If invsort Then
+                ' Workaround for visual basic
+                ' not supporting logical shortcircuiting
+                If childidx < count - 1 Then
+                    If comparer.Compare(sorted_data(childidx), sorted_data(childidx + 1)) > 0 Then
+                        childidx += 1
+                    End If
+                End If
+                If comparer.Compare(sorted_data(root), sorted_data(childidx)) > 0 Then
+                    swap(root, childidx)
+                    Await Task.Delay(200 - speedMod)
+                    root = childidx
+                Else
+                    Return
+                End If
+            Else
+                ' Workaround for visual basic
+                ' not supporting logical shortcircuiting
+                If childidx < count - 1 Then
+                    If comparer.Compare(sorted_data(childidx), sorted_data(childidx + 1)) < 0 Then
+                        childidx += 1
+                    End If
+                End If
+                If comparer.Compare(sorted_data(root), sorted_data(childidx)) < 0 Then
+                    swap(root, childidx)
+                    Await Task.Delay(200 - speedMod)
+                    root = childidx
+                Else
+                    Return
+                End If
+            End If
+
+        End While
+    End Function
+
+    ' https://en.wikipedia.org/wiki/Quicksort
+    ''' <summary>
+    ''' Implementation of Quick Sort, recursive version
+    ''' </summary>
+    ''' <param name="lo">the starting index to start sorting</param>
+    ''' <param name="hi">the ending index to start sorting</param>
+    ''' <returns></returns>
+    ''' <remarks></remarks>
+    Private Async Function QuickSort(lo As Integer, hi As Integer) As Task
+        Dim p As Integer
+        If lo < hi Then
+            p = Await QPart(lo, hi)
+            Await QuickSort(lo, p - 1)
+            Await QuickSort(p + 1, hi)
+            If hi = sorted_data.Count - 1 And lo = 0 Then
+                SortFinish()
+            End If
+        End If
+    End Function
+
+    ' https://en.wikipedia.org/wiki/Quicksort
+    ''' <summary>
+    ''' Implementation of Quick Sort, partitioning helper
+    ''' </summary>
+    ''' <param name="lo">the starting index to start sorting</param>
+    ''' <param name="hi">the ending index to start sorting</param>
+    ''' <returns></returns>
+    ''' <remarks></remarks>
+    Private Async Function QPart(lo As Integer, hi As Integer) As Task(Of Integer)
+        Dim r As New Random
+        Dim pvtidx = r.Next(lo, hi + 1)
+        Dim pvtVal = sorted_data(pvtidx)
+        swap(hi, pvtidx)
+        Dim storeidx = lo
+        For i As Integer = lo To hi - 1
+            If invsort Then
+                If comparer.Compare(sorted_data(i), pvtVal) > 0 Then
+                    swap(i, storeidx)
+                    Await Task.Delay(200 - speedMod)
+                    storeidx += 1
+                End If
+            Else
+                If comparer.Compare(sorted_data(i), pvtVal) < 0 Then
+                    swap(i, storeidx)
+                    Await Task.Delay(200 - speedMod)
+                    storeidx += 1
+                End If
+            End If
+        Next
+        swap(storeidx, hi)
+        Return storeidx
+    End Function
